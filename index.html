@@ -1,7 +1,463 @@
-echo "# uwigo-tickets" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/uwigo1234/uwigo-tickets.git
-git push -u origin main
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uwigo · Seguimiento de solicitudes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-sec: #f6f6f4; --bg-ter: #f0efe9;
+    --text: #1a1a18; --text-sec: #6b6b67; --text-ter: #9e9e99;
+    --border: rgba(0,0,0,0.12); --border-sec: rgba(0,0,0,0.22);
+    --radius-md: 8px; --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1a1a18;--bg-sec:#242422;--bg-ter:#2c2c2a;--text:#f0efe9;--text-sec:#a0a09a;--text-ter:#6b6b67;--border:rgba(255,255,255,0.12);--border-sec:rgba(255,255,255,0.22); }
+  }
+  body { font-family: var(--font); background: var(--bg-ter); color: var(--text); min-height: 100vh; }
+  .view { display: none; } .view.active { display: block; }
+  .app-shell { max-width: 720px; margin: 0 auto; background: var(--bg); min-height: 100vh; border-left: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 0.5px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .logo { font-size: 14px; font-weight: 500; color: var(--text-sec); display: flex; align-items: center; gap: 7px; }
+  .logo i { font-size: 18px; color: var(--text); } .logo span { color: var(--text); }
+  .btn-secondary { background: none; border: 0.5px solid var(--border-sec); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; cursor: pointer; color: var(--text); display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); }
+  .btn-secondary:hover { background: var(--bg-sec); }
+  .btn-primary { background: var(--text); color: var(--bg); border: none; border-radius: var(--radius-md); padding: 9px 18px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); font-weight: 500; }
+  .btn-primary:hover { opacity: 0.85; } .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .section { padding: 20px; }
+  .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 10px 16px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-sec); background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font); }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+  .field-group { margin-bottom: 14px; }
+  .field-label { font-size: 12px; color: var(--text-sec); margin-bottom: 5px; }
+  input[type=text], input[type=date], textarea, select { width: 100%; font-size: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border-sec); background: var(--bg); color: var(--text); padding: 9px 12px; font-family: var(--font); outline: none; transition: border-color 0.15s; }
+  input[type=text]:focus, input[type=date]:focus, textarea:focus, select:focus { border-color: var(--text); }
+  textarea { height: 78px; resize: vertical; }
+  select option { background: var(--bg); color: var(--text); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .status-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 14px; }
+  .status-btn { font-size: 12px; padding: 8px 11px; border-radius: var(--radius-md); cursor: pointer; border: 0.5px solid var(--border); background: var(--bg); color: var(--text); text-align: left; display: flex; align-items: center; gap: 7px; font-family: var(--font); }
+  .status-btn:hover { border-color: var(--border-sec); }
+  .status-btn.active-qa { background:#E6F1FB;border-color:#B5D4F4;color:#0C447C; }
+  .status-btn.active-curso { background:#FAEEDA;border-color:#FAC775;color:#633806; }
+  .status-btn.active-terminar { background:#EEEDFE;border-color:#CECBF6;color:#3C3489; }
+  .status-btn.active-terminado { background:#EAF3DE;border-color:#C0DD97;color:#27500A; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-qa { background:#378ADD; } .dot-curso { background:#EF9F27; } .dot-terminar { background:#7F77DD; } .dot-terminado { background:#639922; }
+  .badge { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px; }
+  .badge-qa{background:#E6F1FB;color:#0C447C;} .badge-curso{background:#FAEEDA;color:#633806;} .badge-terminar{background:#EEEDFE;color:#3C3489;} .badge-terminado{background:#EAF3DE;color:#27500A;} .badge-default{background:var(--bg-sec);color:var(--text-sec);}
+  .ticket-list { display:flex;flex-direction:column;gap:8px; }
+  .ticket-card { background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;cursor:pointer;transition:border-color 0.15s; }
+  .ticket-card:hover { border-color:var(--border-sec); } .ticket-card.selected { border-color:var(--text); }
+  .tc-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:5px; }
+  .tc-id { font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px; }
+  .tc-client { font-size:12px;color:var(--text-sec);margin-bottom:6px; }
+  .tc-desc { font-size:12px;color:var(--text-ter);line-height:1.5; }
+  .edit-panel { background:var(--bg-sec);border-radius:var(--radius-lg);padding:16px;margin-top:14px;border:0.5px solid var(--border); }
+  .ep-title { font-size:13px;font-weight:500;margin-bottom:14px;color:var(--text); }
+  .btn-row { display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+  .divider { height:0.5px;background:var(--border);margin:16px 0; }
+  .empty-state { text-align:center;padding:3rem 1rem;color:var(--text-ter);font-size:13px; }
+  .empty-state i { font-size:28px;display:block;margin-bottom:10px; }
+  .toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;padding:10px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:999;white-space:nowrap; }
+  .toast.show { opacity:1; }
+  .toast.error { background:#A32D2D;color:#fff; }
+  .sync-dot { width:7px;height:7px;border-radius:50%;background:#639922;display:inline-block;margin-right:5px; }
+  .sync-dot.off { background:#ccc; }
+  /* cliente */
+  .client-wrap { padding:2rem 20px;display:flex;flex-direction:column;align-items:center; }
+  .search-box { width:100%;max-width:420px;position:relative;margin-bottom:1.5rem; }
+  .search-box input { padding-left:38px; }
+  .search-icon { position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-ter);font-size:16px;pointer-events:none; }
+  .status-card { width:100%;max-width:420px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:22px;display:none; }
+  .sc-ticket { font-size:11px;color:var(--text-sec);margin-bottom:3px;letter-spacing:0.02em;text-transform:uppercase; }
+  .sc-title { font-size:17px;font-weight:500;margin-bottom:4px; }
+  .sc-date { font-size:12px;color:var(--text-sec);margin-bottom:12px; }
+  .sc-status-row { display:flex;align-items:center;gap:10px;margin-bottom:16px; }
+  .sc-status-label { font-size:13px;color:var(--text-sec); }
+  .timeline { display:flex;flex-direction:column;gap:0; }
+  .tl-step { display:flex;align-items:flex-start;gap:12px;padding:6px 0; }
+  .tl-icon { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;border:0.5px solid var(--border);background:var(--bg-sec);color:var(--text-ter); }
+  .tl-icon.done{background:#EAF3DE;border-color:#C0DD97;color:#3B6D11;} .tl-icon.active{background:#E6F1FB;border-color:#B5D4F4;color:#185FA5;}
+  .tl-text { font-size:13px;padding-top:4px;color:var(--text-ter); }
+  .tl-text.done{color:var(--text);font-weight:500;} .tl-text.active{color:var(--text);font-weight:500;}
+  .tl-connector { width:1px;background:var(--border);height:14px;margin-left:12px; }
+  .tl-connector.done { background:#C0DD97; }
+  .sc-comment { font-size:13px;color:var(--text-sec);background:var(--bg-sec);border-radius:var(--radius-md);padding:10px 12px;margin-top:8px;line-height:1.6; }
+  .not-found { width:100%;max-width:420px;text-align:center;padding:2rem;display:none;color:var(--text-sec);font-size:13px; }
+  .not-found i { font-size:30px;display:block;margin-bottom:10px;color:var(--text-ter); }
+  .client-hint { text-align:center;color:var(--text-ter);font-size:13px;max-width:320px;line-height:1.6; }
+  .client-hint i { font-size:34px;display:block;margin-bottom:12px;opacity:0.4; }
+  .spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (max-width:480px) { .row2{grid-template-columns:1fr;} .status-btns{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Vista CS -->
+  <div id="view-cs" class="view active">
+    <div class="topbar">
+      <div class="logo">
+        <i class="ti ti-ticket"></i><span>Uwigo</span> · tickets
+        <span id="sync-indicator" title="Conectado a Supabase"><span class="sync-dot off" id="sync-dot"></span></span>
+      </div>
+      <button class="btn-secondary" onclick="switchTo('client')"><i class="ti ti-eye"></i> Vista cliente</button>
+    </div>
+    <div class="section">
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('new')">Nuevo ticket</button>
+        <button class="tab" onclick="showTab('list')">Mis tickets (<span id="count">…</span>)</button>
+      </div>
+
+      <!-- Formulario nuevo -->
+      <div id="tab-new">
+        <div class="row2">
+          <div class="field-group">
+            <div class="field-label">N° ticket Jira</div>
+            <input type="text" id="f-id" placeholder="CSUW-1234">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Empresa / cliente</div>
+            <input type="text" id="f-client" placeholder="Nombre empresa">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Descripción del problema</div>
+          <textarea id="f-desc" placeholder="Resumen del problema reportado por el cliente..."></textarea>
+        </div>
+        <div class="row2">
+          <div class="field-group">
+            <div class="field-label">Fecha de inicio</div>
+            <input type="date" id="f-date">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Módulo afectado</div>
+            <select id="f-module">
+              <option value="">Seleccionar...</option>
+              <option>Contabilidad</option>
+              <option>Remuneraciones</option>
+              <option>Tesorería</option>
+              <option>SII / Automatización</option>
+              <option>Portal de Colaboradores</option>
+              <option>Licencias</option>
+              <option>General</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Estado inicial</div>
+          <div class="status-btns" id="new-status-btns">
+            <button class="status-btn active-curso" data-s="En curso" onclick="selectStatus(this,'new-status-btns')"><span class="dot dot-curso"></span>En curso</button>
+            <button class="status-btn" data-s="Entregado a QA" onclick="selectStatus(this,'new-status-btns')"><span class="dot dot-qa"></span>Entregado a QA</button>
+            <button class="status-btn" data-s="Por terminar" onclick="selectStatus(this,'new-status-btns')"><span class="dot dot-terminar"></span>Por terminar</button>
+            <button class="status-btn" data-s="Terminado" onclick="selectStatus(this,'new-status-btns')"><span class="dot dot-terminado"></span>Terminado</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Comentario para el cliente (opcional)</div>
+          <textarea id="f-comment" placeholder="Mensaje que verá el cliente al consultar su ticket..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" id="btn-save" onclick="saveTicket()"><i class="ti ti-plus"></i> Guardar ticket</button>
+        </div>
+      </div>
+
+      <!-- Lista -->
+      <div id="tab-list" style="display:none">
+        <div id="ticket-list" class="ticket-list">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>Cargando tickets...</div>
+        </div>
+        <div id="edit-panel" class="edit-panel" style="display:none">
+          <div class="ep-title">Editar — <span id="ep-id"></span></div>
+          <div class="status-btns" id="ep-status-btns">
+            <button class="status-btn" data-s="En curso" onclick="selectStatus(this,'ep-status-btns')"><span class="dot dot-curso"></span>En curso</button>
+            <button class="status-btn" data-s="Entregado a QA" onclick="selectStatus(this,'ep-status-btns')"><span class="dot dot-qa"></span>Entregado a QA</button>
+            <button class="status-btn" data-s="Por terminar" onclick="selectStatus(this,'ep-status-btns')"><span class="dot dot-terminar"></span>Por terminar</button>
+            <button class="status-btn" data-s="Terminado" onclick="selectStatus(this,'ep-status-btns')"><span class="dot dot-terminado"></span>Terminado</button>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Comentario para el cliente</div>
+            <textarea id="ep-comment" style="height:64px"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary" id="btn-update" onclick="applyEdit()"><i class="ti ti-check"></i> Guardar cambios</button>
+            <button class="btn-secondary" onclick="copyTicketId()"><i class="ti ti-copy"></i> Copiar N°</button>
+            <button class="btn-secondary" onclick="deleteTicket()" style="color:#A32D2D;border-color:#F7C1C1"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista cliente -->
+  <div id="view-client" class="view">
+    <div class="topbar">
+      <div class="logo"><i class="ti ti-ticket"></i><span>Uwigo</span> · estado de tu solicitud</div>
+      <button class="btn-secondary" id="back-btn" onclick="switchTo('cs')" style="display:none"><i class="ti ti-arrow-left"></i> Panel CS</button>
+    </div>
+    <div class="client-wrap">
+      <div class="search-box">
+        <i class="ti ti-search search-icon"></i>
+        <input type="text" id="search-input" placeholder="Ingresa tu N° de ticket (ej: CSUW-1234)" oninput="searchTicket(this.value)">
+      </div>
+      <div id="status-card" class="status-card">
+        <div class="sc-ticket" id="sc-id"></div>
+        <div class="sc-title" id="sc-title"></div>
+        <div class="sc-date" id="sc-date"></div>
+        <div class="sc-status-row"><span class="sc-status-label">Estado actual:</span><span id="sc-badge"></span></div>
+        <div class="divider"></div>
+        <div class="timeline" id="sc-timeline"></div>
+        <div id="sc-comment-wrap" style="display:none">
+          <div class="divider"></div>
+          <div style="font-size:12px;color:var(--text-sec);margin-bottom:4px">Mensaje de tu ejecutivo</div>
+          <div class="sc-comment" id="sc-comment"></div>
+        </div>
+      </div>
+      <div id="not-found" class="not-found"><i class="ti ti-search-off"></i>No se encontró ningún ticket con ese número.<br>Verifica el número con tu ejecutivo.</div>
+      <div id="client-empty" class="client-hint"><i class="ti ti-ticket"></i>Ingresa el número de ticket que te entregó tu ejecutivo para ver el estado de tu solicitud.</div>
+    </div>
+  </div>
+
+</div>
+<script>
+// ── Supabase config ──────────────────────────────────────────
+const SB_URL = 'https://lursuyqtduqlvqixpaot.supabase.co';
+const SB_KEY = 'sb_publishable_6B1tMia6i68C7gcX76ogww_mJySkwwN';
+const HEADERS = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+async function sbFetch(path, opts = {}) {
+  const res = await fetch(SB_URL + path, { headers: HEADERS, ...opts });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.statusText); }
+  return res.status === 204 ? null : res.json();
+}
+
+async function getAll()        { return sbFetch('/rest/v1/tickets?order=created_at.desc&select=*'); }
+async function insertOne(t)    { return sbFetch('/rest/v1/tickets', { method: 'POST', body: JSON.stringify(t), headers: { ...HEADERS, 'Prefer': 'return=representation' } }); }
+async function updateOne(id,t) { return sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(t), headers: { ...HEADERS, 'Prefer': 'return=representation' } }); }
+async function deleteOne(id)   { return sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE' }); }
+async function getOne(id)      { const r = await sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}&select=*`); return r?.[0] || null; }
+
+// ── Estado local ─────────────────────────────────────────────
+let tickets = [];
+let editingId = null;
+let selectedStatusNew = 'En curso';
+let polling = null;
+
+// ── Toast ────────────────────────────────────────────────────
+function toast(msg, err = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast show' + (err ? ' error' : '');
+  clearTimeout(el._t); el._t = setTimeout(() => el.className = 'toast', 2800);
+}
+
+// ── Helpers UI ───────────────────────────────────────────────
+function statusClass(s) { return { 'Entregado a QA':'active-qa','En curso':'active-curso','Por terminar':'active-terminar','Terminado':'active-terminado' }[s] || ''; }
+function badgeHTML(s)   { return `<span class="badge ${{ 'Entregado a QA':'badge-qa','En curso':'badge-curso','Por terminar':'badge-terminar','Terminado':'badge-terminado' }[s]||'badge-default'}">${s}</span>`; }
+
+function selectStatus(btn, container) {
+  document.querySelectorAll('#' + container + ' .status-btn').forEach(b => b.className = 'status-btn');
+  btn.classList.add(statusClass(btn.dataset.s));
+  if (container === 'new-status-btns') selectedStatusNew = btn.dataset.s;
+}
+
+// ── Vista / tab ──────────────────────────────────────────────
+function switchTo(v) {
+  document.getElementById('view-cs').classList.toggle('active', v === 'cs');
+  document.getElementById('view-client').classList.toggle('active', v === 'client');
+  document.getElementById('back-btn').style.display = v === 'client' ? 'flex' : 'none';
+  if (v === 'client') { document.getElementById('search-input').value = ''; resetClientView(); }
+  if (v === 'cs') { loadTickets(); startPolling(); } else { stopPolling(); startClientPolling(); }
+}
+
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', (t==='new'&&i===0)||(t==='list'&&i===1)));
+  document.getElementById('tab-new').style.display = t==='new' ? 'block' : 'none';
+  document.getElementById('tab-list').style.display = t==='list' ? 'block' : 'none';
+  if (t === 'list') loadTickets();
+}
+
+// ── Cargar tickets ───────────────────────────────────────────
+async function loadTickets() {
+  try {
+    tickets = await getAll();
+    document.getElementById('count').textContent = tickets.length;
+    document.getElementById('sync-dot').className = 'sync-dot';
+    renderList();
+  } catch(e) {
+    document.getElementById('sync-dot').className = 'sync-dot off';
+    toast('Error conectando con Supabase: ' + e.message, true);
+  }
+}
+
+function renderList() {
+  const el = document.getElementById('ticket-list');
+  if (!tickets.length) {
+    el.innerHTML = '<div class="empty-state"><i class="ti ti-inbox"></i>Aún no hay tickets registrados</div>';
+    document.getElementById('edit-panel').style.display = 'none';
+    return;
+  }
+  el.innerHTML = tickets.map(t => `
+    <div class="ticket-card ${editingId===t.id?'selected':''}" onclick="editTicket('${t.id}')">
+      <div class="tc-head"><span class="tc-id"><i class="ti ti-ticket" style="font-size:13px"></i>${t.id}</span>${badgeHTML(t.status)}</div>
+      <div class="tc-client">${t.client}${t.module?' · '+t.module:''}</div>
+      ${t.description?`<div class="tc-desc">${t.description.length>130?t.description.slice(0,130)+'…':t.description}</div>`:''}
+    </div>`).join('');
+}
+
+// ── Guardar ticket ───────────────────────────────────────────
+async function saveTicket() {
+  const id = document.getElementById('f-id').value.trim();
+  const client = document.getElementById('f-client').value.trim();
+  if (!id || !client) { toast('Ingresa al menos el N° de ticket y el cliente.', true); return; }
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando…';
+  try {
+    await insertOne({
+      id, client,
+      description: document.getElementById('f-desc').value.trim(),
+      date: document.getElementById('f-date').value || null,
+      module: document.getElementById('f-module').value || null,
+      status: selectedStatusNew,
+      comment: document.getElementById('f-comment').value.trim() || null
+    });
+    ['f-id','f-client','f-desc','f-date','f-comment'].forEach(x => document.getElementById(x).value = '');
+    document.getElementById('f-module').value = '';
+    toast('✓ Ticket guardado en Supabase');
+    await loadTickets();
+  } catch(e) {
+    toast(e.message.includes('duplicate') ? 'Ya existe un ticket con ese número.' : 'Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-plus"></i> Guardar ticket';
+  }
+}
+
+// ── Editar ticket ────────────────────────────────────────────
+function editTicket(id) {
+  editingId = id;
+  const t = tickets.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('ep-id').textContent = t.id + ' — ' + t.client;
+  document.getElementById('ep-comment').value = t.comment || '';
+  document.querySelectorAll('#ep-status-btns .status-btn').forEach(b => {
+    b.className = 'status-btn';
+    if (b.dataset.s === t.status) b.classList.add(statusClass(t.status));
+  });
+  document.getElementById('edit-panel').style.display = 'block';
+  renderList();
+  document.getElementById('edit-panel').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+async function applyEdit() {
+  const t = tickets.find(x => x.id === editingId);
+  if (!t) return;
+  const activeBtn = document.querySelector('#ep-status-btns .status-btn[class*="active-"]');
+  const newStatus = activeBtn ? activeBtn.dataset.s : t.status;
+  const newComment = document.getElementById('ep-comment').value.trim() || null;
+  const btn = document.getElementById('btn-update');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando…';
+  try {
+    await updateOne(editingId, { status: newStatus, comment: newComment });
+    toast('✓ Cambios guardados en Supabase');
+    await loadTickets();
+    editTicket(editingId);
+  } catch(e) {
+    toast('Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-check"></i> Guardar cambios';
+  }
+}
+
+async function deleteTicket() {
+  if (!editingId) return;
+  if (!confirm('¿Eliminar el ticket ' + editingId + '? Esta acción no se puede deshacer.')) return;
+  try {
+    await deleteOne(editingId);
+    editingId = null;
+    document.getElementById('edit-panel').style.display = 'none';
+    toast('Ticket eliminado');
+    await loadTickets();
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+function copyTicketId() {
+  if (!editingId) return;
+  navigator.clipboard.writeText(editingId).then(() => toast('✓ N° copiado: ' + editingId));
+}
+
+// ── Polling (tiempo real cada 8s) ────────────────────────────
+function startPolling() {
+  stopPolling();
+  polling = setInterval(async () => {
+    const prev = JSON.stringify(tickets.map(t => t.status + t.comment));
+    await loadTickets();
+    const next = JSON.stringify(tickets.map(t => t.status + t.comment));
+    if (prev !== next && editingId) editTicket(editingId);
+  }, 8000);
+}
+function stopPolling() { if (polling) { clearInterval(polling); polling = null; } }
+
+let clientPolling = null;
+function startClientPolling() {
+  stopClientPolling();
+  clientPolling = setInterval(() => {
+    const v = document.getElementById('search-input').value.trim();
+    if (v) searchTicket(v);
+  }, 8000);
+}
+function stopClientPolling() { if (clientPolling) { clearInterval(clientPolling); clientPolling = null; } }
+
+// ── Vista cliente ────────────────────────────────────────────
+const steps = ['En curso','Entregado a QA','Por terminar','Terminado'];
+function timelineHTML(current) {
+  const ci = steps.indexOf(current);
+  return steps.map((s,i) => {
+    const done = i<ci, active = i===ci;
+    const icon = done ? '<i class="ti ti-check" style="font-size:12px"></i>' : active ? '<i class="ti ti-player-play" style="font-size:10px"></i>' : (i+1);
+    const connector = i<steps.length-1 ? `<div class="tl-connector ${done?'done':''}"></div>` : '';
+    return `<div class="tl-step"><div class="tl-icon ${done?'done':active?'active':''}">${icon}</div><div class="tl-text ${done?'done':active?'active':''}">${s}</div></div>${connector}`;
+  }).join('');
+}
+
+async function searchTicket(val) {
+  const v = val.trim();
+  document.getElementById('client-empty').style.display = 'none';
+  if (!v) { resetClientView(); document.getElementById('client-empty').style.display = 'block'; return; }
+  try {
+    const t = await getOne(v);
+    const card = document.getElementById('status-card');
+    const nf = document.getElementById('not-found');
+    if (t) {
+      card.style.display = 'block'; nf.style.display = 'none';
+      document.getElementById('sc-id').textContent = t.id + (t.module?' · '+t.module:'');
+      document.getElementById('sc-title').textContent = t.client;
+      document.getElementById('sc-date').textContent = t.date ? 'Inicio: ' + new Date(t.date+'T00:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'}) : '';
+      document.getElementById('sc-badge').innerHTML = badgeHTML(t.status);
+      document.getElementById('sc-timeline').innerHTML = timelineHTML(t.status);
+      const cw = document.getElementById('sc-comment-wrap');
+      if (t.comment) { cw.style.display='block'; document.getElementById('sc-comment').textContent=t.comment; }
+      else cw.style.display = 'none';
+    } else {
+      card.style.display = 'none'; nf.style.display = 'block';
+    }
+  } catch(e) { toast('Error buscando ticket', true); }
+}
+
+function resetClientView() {
+  document.getElementById('status-card').style.display = 'none';
+  document.getElementById('not-found').style.display = 'none';
+}
+
+// ── Init ─────────────────────────────────────────────────────
+loadTickets();
+startPolling();
+</script>
+</body>
+</html>
