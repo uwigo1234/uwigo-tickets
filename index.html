@@ -33,7 +33,7 @@
   .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
   .field-group { margin-bottom: 14px; }
   .field-label { font-size: 12px; color: var(--text-sec); margin-bottom: 5px; }
-  input[type=text], input[type=date], input[type=password], textarea, select { width: 100%; font-size: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border-sec); background: var(--bg); color: var(--text); padding: 9px 12px; font-family: var(--font); outline: none; transition: border-color 0.15s; }
+  input[type=text], input[type=date], input[type=password], input[type=email], textarea, select { width: 100%; font-size: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border-sec); background: var(--bg); color: var(--text); padding: 9px 12px; font-family: var(--font); outline: none; transition: border-color 0.15s; }
   input:focus, textarea:focus, select:focus { border-color: var(--text); }
   textarea { height: 78px; resize: vertical; }
   select option { background: var(--bg); color: var(--text); }
@@ -41,11 +41,11 @@
   .status-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 14px; }
   .status-btn { font-size: 12px; padding: 8px 11px; border-radius: var(--radius-md); cursor: pointer; border: 0.5px solid var(--border); background: var(--bg); color: var(--text); text-align: left; display: flex; align-items: center; gap: 7px; font-family: var(--font); }
   .status-btn:hover { border-color: var(--border-sec); }
-  .status-btn.active-qa { background:#E6F1FB;border-color:#B5D4F4;color:#0C447C; }
-  .status-btn.active-curso { background:#FAEEDA;border-color:#FAC775;color:#633806; }
-  .status-btn.active-terminar { background:#EEEDFE;border-color:#CECBF6;color:#3C3489; }
-  .status-btn.active-terminado { background:#EAF3DE;border-color:#C0DD97;color:#27500A; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .status-btn.active-qa{background:#E6F1FB;border-color:#B5D4F4;color:#0C447C;}
+  .status-btn.active-curso{background:#FAEEDA;border-color:#FAC775;color:#633806;}
+  .status-btn.active-terminar{background:#EEEDFE;border-color:#CECBF6;color:#3C3489;}
+  .status-btn.active-terminado{background:#EAF3DE;border-color:#C0DD97;color:#27500A;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .dot-qa{background:#378ADD;}.dot-curso{background:#EF9F27;}.dot-terminar{background:#7F77DD;}.dot-terminado{background:#639922;}
   .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;}
   .badge-qa{background:#E6F1FB;color:#0C447C;}.badge-curso{background:#FAEEDA;color:#633806;}.badge-terminar{background:#EEEDFE;color:#3C3489;}.badge-terminado{background:#EAF3DE;color:#27500A;}.badge-default{background:var(--bg-sec);color:var(--text-sec);}
@@ -106,10 +106,9 @@
 </head>
 <body>
 <div class="app-shell">
-
   <div class="toast" id="toast"></div>
 
-  <!-- ── LOGIN ── -->
+  <!-- LOGIN -->
   <div id="view-login" class="view active">
     <div class="login-wrap">
       <div class="login-card">
@@ -130,13 +129,10 @@
     </div>
   </div>
 
-  <!-- ── PANEL CS ── -->
+  <!-- PANEL CS -->
   <div id="view-cs" class="view">
     <div class="topbar">
-      <div class="logo">
-        <i class="ti ti-ticket"></i><span>Uwigo</span> · tickets
-        <span title="Conectado a Supabase"><span class="sync-dot off" id="sync-dot"></span></span>
-      </div>
+      <div class="logo"><i class="ti ti-ticket"></i><span>Uwigo</span> · tickets <span><span class="sync-dot off" id="sync-dot"></span></span></div>
       <div style="display:flex;gap:8px">
         <button class="btn-secondary" onclick="switchTo('client')"><i class="ti ti-eye"></i> Vista cliente</button>
         <button class="btn-secondary" onclick="doLogout()" title="Cerrar sesión"><i class="ti ti-logout"></i></button>
@@ -152,6 +148,7 @@
           <div class="field-group"><div class="field-label">N° ticket Jira</div><input type="text" id="f-id" placeholder="CSUW-1234"></div>
           <div class="field-group"><div class="field-label">Empresa / cliente</div><input type="text" id="f-client" placeholder="Nombre empresa"></div>
         </div>
+        <div class="field-group"><div class="field-label">Correo del cliente</div><input type="email" id="f-email" placeholder="cliente@empresa.cl"></div>
         <div class="field-group"><div class="field-label">Descripción del problema</div><textarea id="f-desc" placeholder="Resumen del problema reportado por el cliente..."></textarea></div>
         <div class="row2">
           <div class="field-group"><div class="field-label">Fecha de inicio</div><input type="date" id="f-date"></div>
@@ -195,11 +192,11 @@
     </div>
   </div>
 
-  <!-- ── VISTA CLIENTE ── -->
+  <!-- VISTA CLIENTE -->
   <div id="view-client" class="view">
     <div class="topbar">
       <div class="logo"><i class="ti ti-ticket"></i><span>Uwigo</span> · estado de tu solicitud</div>
-      <button class="btn-secondary" onclick="switchTo('login')" id="back-cs-btn"><i class="ti ti-lock"></i> CS</button>
+      <button class="btn-secondary" onclick="switchTo('login')"><i class="ti ti-lock"></i> CS</button>
     </div>
     <div class="client-wrap">
       <div class="search-box">
@@ -223,70 +220,69 @@
       <div id="client-empty" class="client-hint"><i class="ti ti-ticket"></i>Ingresa el número de ticket que te entregó tu ejecutivo para ver el estado de tu solicitud.</div>
     </div>
   </div>
-
 </div>
+
 <script>
-const SB_URL = 'https://lursuyqtduqlvqixpaot.supabase.co';
-const SB_KEY = 'sb_publishable_6B1tMia6i68C7gcX76ogww_mJySkwwN';
+// ── Config ───────────────────────────────────────────────────
+const SB_URL  = 'https://lursuyqtduqlvqixpaot.supabase.co';
+const SB_KEY  = 'sb_publishable_6B1tMia6i68C7gcX76ogww_mJySkwwN';
 const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 const CS_PASS = 'Uwigo2026@';
+
+// ── Mapeo de columnas (nombres reales en Supabase) ───────────
+// id, cliente, Descripción, Módulo, Estado, Comentario, created_at, Fecha Estimada
+const COL = {
+  id:          'id',
+  client:      'cliente',
+  description: 'Descripción',
+  module:      'Módulo',
+  status:      'Estado',
+  comment:     'Comentario',
+  email:       'email',
+  created_at:  'created_at'
+};
 
 async function sbFetch(path, opts={}) {
   const res = await fetch(SB_URL+path, {headers:HEADERS,...opts});
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message||res.statusText); }
   return res.status===204 ? null : res.json();
 }
-const getAll  = ()         => sbFetch('/rest/v1/tickets?order=created_at.desc&select=*');
-const insertOne = t        => sbFetch('/rest/v1/tickets',{method:'POST',body:JSON.stringify(t),headers:{...HEADERS,'Prefer':'return=representation'}});
-const updateOne = (id,t)   => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',body:JSON.stringify(t),headers:{...HEADERS,'Prefer':'return=representation'}});
-const deleteOne = id       => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`,{method:'DELETE'});
-const getOne    = id       => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}&select=*`).then(r=>r?.[0]||null);
+
+const getAll   = ()       => sbFetch(`/rest/v1/tickets?order=created_at.desc&select=*`);
+const insertOne = t       => sbFetch('/rest/v1/tickets',{method:'POST',body:JSON.stringify(t),headers:{...HEADERS,'Prefer':'return=representation'}});
+const updateOne = (id,t)  => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',body:JSON.stringify(t),headers:{...HEADERS,'Prefer':'return=representation'}});
+const deleteOne = id      => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`,{method:'DELETE'});
+const getOne    = id      => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}&select=*`).then(r=>r?.[0]||null);
 
 let tickets=[], editingId=null, selectedStatusNew='En curso', polling=null, clientPolling=null;
 
-function toast(msg, err=false) {
+function toast(msg,err=false){
   const el=document.getElementById('toast');
   el.textContent=msg; el.className='toast show'+(err?' error':'');
   clearTimeout(el._t); el._t=setTimeout(()=>el.className='toast',2800);
 }
 
 // ── Auth ─────────────────────────────────────────────────────
-function doLogin() {
-  const val = document.getElementById('pw-input').value;
-  if (val === CS_PASS) {
-    sessionStorage.setItem('cs_auth','1');
-    document.getElementById('login-error').style.display='none';
-    document.getElementById('pw-input').value='';
-    switchTo('cs');
-  } else {
-    document.getElementById('login-error').style.display='block';
-    document.getElementById('pw-input').value='';
-    document.getElementById('pw-input').focus();
-  }
+function doLogin(){
+  const val=document.getElementById('pw-input').value;
+  if(val===CS_PASS){sessionStorage.setItem('cs_auth','1');document.getElementById('login-error').style.display='none';document.getElementById('pw-input').value='';switchTo('cs');}
+  else{document.getElementById('login-error').style.display='block';document.getElementById('pw-input').value='';document.getElementById('pw-input').focus();}
 }
-function doLogout() {
-  sessionStorage.removeItem('cs_auth');
-  switchTo('login');
-}
-function togglePw() {
-  const inp=document.getElementById('pw-input'), eye=document.getElementById('pw-eye');
-  if (inp.type==='password') { inp.type='text'; eye.className='ti ti-eye-off'; }
-  else { inp.type='password'; eye.className='ti ti-eye'; }
-}
+function doLogout(){sessionStorage.removeItem('cs_auth');switchTo('login');}
+function togglePw(){const i=document.getElementById('pw-input'),e=document.getElementById('pw-eye');if(i.type==='password'){i.type='text';e.className='ti ti-eye-off';}else{i.type='password';e.className='ti ti-eye';}}
 
-// ── Navegación ───────────────────────────────────────────────
-function switchTo(v) {
-  ['login','cs','client'].forEach(x => document.getElementById('view-'+x).classList.toggle('active', x===v));
-  if (v==='cs') { loadTickets(); startPolling(); stopClientPolling(); }
-  if (v==='client') { document.getElementById('search-input').value=''; resetClientView(); stopPolling(); startClientPolling(); }
-  if (v==='login') { stopPolling(); stopClientPolling(); }
+// ── Nav ──────────────────────────────────────────────────────
+function switchTo(v){
+  ['login','cs','client'].forEach(x=>document.getElementById('view-'+x).classList.toggle('active',x===v));
+  if(v==='cs'){loadTickets();startPolling();stopClientPolling();}
+  if(v==='client'){document.getElementById('search-input').value='';resetClientView();stopPolling();startClientPolling();}
+  if(v==='login'){stopPolling();stopClientPolling();}
 }
-
-function showTab(t) {
+function showTab(t){
   document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(t==='new'&&i===0)||(t==='list'&&i===1)));
   document.getElementById('tab-new').style.display=t==='new'?'block':'none';
   document.getElementById('tab-list').style.display=t==='list'?'block':'none';
-  if (t==='list') loadTickets();
+  if(t==='list')loadTickets();
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -295,70 +291,82 @@ function badgeHTML(s){return`<span class="badge ${{ 'Entregado a QA':'badge-qa',
 function selectStatus(btn,container){
   document.querySelectorAll('#'+container+' .status-btn').forEach(b=>b.className='status-btn');
   btn.classList.add(statusClass(btn.dataset.s));
-  if(container==='new-status-btns') selectedStatusNew=btn.dataset.s;
+  if(container==='new-status-btns')selectedStatusNew=btn.dataset.s;
 }
 
 // ── Tickets ──────────────────────────────────────────────────
-async function loadTickets() {
-  try {
+async function loadTickets(){
+  try{
     tickets=await getAll();
     document.getElementById('count').textContent=tickets.length;
     document.getElementById('sync-dot').className='sync-dot';
     renderList();
-  } catch(e) {
-    document.getElementById('sync-dot').className='sync-dot off';
-    toast('Error Supabase: '+e.message,true);
-  }
+  }catch(e){document.getElementById('sync-dot').className='sync-dot off';toast('Error Supabase: '+e.message,true);}
 }
 
-function renderList() {
+function renderList(){
   const el=document.getElementById('ticket-list');
-  if (!tickets.length){el.innerHTML='<div class="empty-state"><i class="ti ti-inbox"></i>Aún no hay tickets registrados</div>';document.getElementById('edit-panel').style.display='none';return;}
+  if(!tickets.length){el.innerHTML='<div class="empty-state"><i class="ti ti-inbox"></i>Aún no hay tickets registrados</div>';document.getElementById('edit-panel').style.display='none';return;}
   el.innerHTML=tickets.map(t=>`
-    <div class="ticket-card ${editingId===t.id?'selected':''}" onclick="editTicket('${t.id}')">
-      <div class="tc-head"><span class="tc-id"><i class="ti ti-ticket" style="font-size:13px"></i>${t.id}</span>${badgeHTML(t.status)}</div>
-      <div class="tc-client">${t.client}${t.module?' · '+t.module:''}</div>
-      ${t.description?`<div class="tc-desc">${t.description.length>130?t.description.slice(0,130)+'…':t.description}</div>`:''}
+    <div class="ticket-card ${editingId===t[COL.id]?'selected':''}" onclick="editTicket('${t[COL.id]}')">
+      <div class="tc-head"><span class="tc-id"><i class="ti ti-ticket" style="font-size:13px"></i>${t[COL.id]}</span>${badgeHTML(t[COL.status])}</div>
+      <div class="tc-client">${t[COL.client]}${t[COL.module]?' · '+t[COL.module]:''}</div>
+      ${t[COL.description]?`<div class="tc-desc">${t[COL.description].length>130?t[COL.description].slice(0,130)+'…':t[COL.description]}</div>`:''}
     </div>`).join('');
 }
 
-async function saveTicket() {
-  const id=document.getElementById('f-id').value.trim(), client=document.getElementById('f-client').value.trim();
-  if (!id||!client){toast('Ingresa al menos el N° de ticket y el cliente.',true);return;}
+async function saveTicket(){
+  const id=document.getElementById('f-id').value.trim();
+  const client=document.getElementById('f-client').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  if(!id||!client){toast('Ingresa al menos el N° de ticket y el cliente.',true);return;}
   const btn=document.getElementById('btn-save');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
-  try {
-    await insertOne({id,client,description:document.getElementById('f-desc').value.trim(),date:document.getElementById('f-date').value||null,module:document.getElementById('f-module').value||null,status:selectedStatusNew,comment:document.getElementById('f-comment').value.trim()||null});
-    ['f-id','f-client','f-desc','f-date','f-comment'].forEach(x=>document.getElementById(x).value='');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando…';
+  try{
+    const row={
+      [COL.id]: id,
+      [COL.client]: client,
+      [COL.description]: document.getElementById('f-desc').value.trim()||null,
+      [COL.module]: document.getElementById('f-module').value||null,
+      [COL.status]: selectedStatusNew,
+      [COL.comment]: document.getElementById('f-comment').value.trim()||null,
+    };
+    // Agregar email solo si la columna existe
+    if(email) row['email']=email;
+    await insertOne(row);
+    ['f-id','f-client','f-email','f-desc','f-date','f-comment'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('f-module').value='';
-    toast('✓ Ticket guardado'); await loadTickets();
-  } catch(e){toast(e.message.includes('duplicate')?'Ya existe ese N° de ticket.':'Error: '+e.message,true);}
-  finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-plus"></i> Guardar ticket';}
+    toast('✓ Ticket guardado');
+    await loadTickets();
+  }catch(e){
+    if(e.message.includes('duplicate')||e.message.includes('pkey')) toast('Ya existe un ticket con ese número.',true);
+    else toast('Error: '+e.message,true);
+  }finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-plus"></i> Guardar ticket';}
 }
 
-function editTicket(id) {
-  editingId=id; const t=tickets.find(x=>x.id===id); if(!t)return;
-  document.getElementById('ep-id').textContent=t.id+' — '+t.client;
-  document.getElementById('ep-comment').value=t.comment||'';
-  document.querySelectorAll('#ep-status-btns .status-btn').forEach(b=>{b.className='status-btn';if(b.dataset.s===t.status)b.classList.add(statusClass(t.status));});
+function editTicket(id){
+  editingId=id;const t=tickets.find(x=>x[COL.id]===id);if(!t)return;
+  document.getElementById('ep-id').textContent=t[COL.id]+' — '+t[COL.client];
+  document.getElementById('ep-comment').value=t[COL.comment]||'';
+  document.querySelectorAll('#ep-status-btns .status-btn').forEach(b=>{b.className='status-btn';if(b.dataset.s===t[COL.status])b.classList.add(statusClass(t[COL.status]));});
   document.getElementById('edit-panel').style.display='block';
   renderList();
   document.getElementById('edit-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-async function applyEdit() {
-  const t=tickets.find(x=>x.id===editingId); if(!t)return;
+async function applyEdit(){
+  const t=tickets.find(x=>x[COL.id]===editingId);if(!t)return;
   const activeBtn=document.querySelector('#ep-status-btns .status-btn[class*="active-"]');
   const btn=document.getElementById('btn-update');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando…';
-  try {
-    await updateOne(editingId,{status:activeBtn?activeBtn.dataset.s:t.status,comment:document.getElementById('ep-comment').value.trim()||null});
-    toast('✓ Cambios guardados'); await loadTickets(); editTicket(editingId);
-  } catch(e){toast('Error: '+e.message,true);}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando…';
+  try{
+    await updateOne(editingId,{[COL.status]:activeBtn?activeBtn.dataset.s:t[COL.status],[COL.comment]:document.getElementById('ep-comment').value.trim()||null});
+    toast('✓ Cambios guardados');await loadTickets();editTicket(editingId);
+  }catch(e){toast('Error: '+e.message,true);}
   finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i> Guardar cambios';}
 }
 
-async function deleteTicket() {
+async function deleteTicket(){
   if(!editingId||!confirm('¿Eliminar el ticket '+editingId+'?'))return;
   try{await deleteOne(editingId);editingId=null;document.getElementById('edit-panel').style.display='none';toast('Ticket eliminado');await loadTickets();}
   catch(e){toast('Error: '+e.message,true);}
@@ -367,7 +375,7 @@ async function deleteTicket() {
 function copyTicketId(){if(!editingId)return;navigator.clipboard.writeText(editingId).then(()=>toast('✓ N° copiado: '+editingId));}
 
 // ── Polling ──────────────────────────────────────────────────
-function startPolling(){stopPolling();polling=setInterval(async()=>{const prev=JSON.stringify(tickets.map(t=>t.status+t.comment));await loadTickets();const next=JSON.stringify(tickets.map(t=>t.status+t.comment));if(prev!==next&&editingId)editTicket(editingId);},8000);}
+function startPolling(){stopPolling();polling=setInterval(async()=>{const prev=JSON.stringify(tickets.map(t=>t[COL.status]+t[COL.comment]));await loadTickets();const next=JSON.stringify(tickets.map(t=>t[COL.status]+t[COL.comment]));if(prev!==next&&editingId)editTicket(editingId);},8000);}
 function stopPolling(){if(polling){clearInterval(polling);polling=null;}}
 function startClientPolling(){stopClientPolling();clientPolling=setInterval(()=>{const v=document.getElementById('search-input').value.trim();if(v)searchTicket(v);},8000);}
 function stopClientPolling(){if(clientPolling){clearInterval(clientPolling);clientPolling=null;}}
@@ -393,13 +401,13 @@ async function searchTicket(val){
     const card=document.getElementById('status-card'),nf=document.getElementById('not-found');
     if(t){
       card.style.display='block';nf.style.display='none';
-      document.getElementById('sc-id').textContent=t.id+(t.module?' · '+t.module:'');
-      document.getElementById('sc-title').textContent=t.client;
-      document.getElementById('sc-date').textContent=t.date?'Inicio: '+new Date(t.date+'T00:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'}):'';
-      document.getElementById('sc-badge').innerHTML=badgeHTML(t.status);
-      document.getElementById('sc-timeline').innerHTML=timelineHTML(t.status);
+      document.getElementById('sc-id').textContent=t[COL.id]+(t[COL.module]?' · '+t[COL.module]:'');
+      document.getElementById('sc-title').textContent=t[COL.client];
+      document.getElementById('sc-date').textContent='';
+      document.getElementById('sc-badge').innerHTML=badgeHTML(t[COL.status]);
+      document.getElementById('sc-timeline').innerHTML=timelineHTML(t[COL.status]);
       const cw=document.getElementById('sc-comment-wrap');
-      if(t.comment){cw.style.display='block';document.getElementById('sc-comment').textContent=t.comment;}
+      if(t[COL.comment]){cw.style.display='block';document.getElementById('sc-comment').textContent=t[COL.comment];}
       else cw.style.display='none';
     }else{card.style.display='none';nf.style.display='block';}
   }catch(e){toast('Error buscando ticket',true);}
@@ -408,8 +416,6 @@ async function searchTicket(val){
 function resetClientView(){document.getElementById('status-card').style.display='none';document.getElementById('not-found').style.display='none';}
 
 // ── Init ─────────────────────────────────────────────────────
-// Al cargar, mostrar vista cliente por defecto (pública)
-// Si había sesión activa, ir directo al CS
 if(sessionStorage.getItem('cs_auth')==='1'){switchTo('cs');}else{switchTo('client');}
 </script>
 </body>
