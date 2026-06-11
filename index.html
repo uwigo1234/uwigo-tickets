@@ -33,7 +33,10 @@
   .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
   .field-group { margin-bottom: 14px; }
   .field-label { font-size: 12px; color: var(--text-sec); margin-bottom: 5px; }
-  input[type=text], input[type=date], input[type=password], input[type=email], textarea, select { width: 100%; font-size: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border-sec); background: var(--bg); color: var(--text); padding: 9px 12px; font-family: var(--font); outline: none; transition: border-color 0.15s; }
+  input[type=text], input[type=date], input[type=password], input[type=email], textarea, select {
+    width: 100%; font-size: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border-sec);
+    background: var(--bg); color: var(--text); padding: 9px 12px; font-family: var(--font); outline: none; transition: border-color 0.15s;
+  }
   input:focus, textarea:focus, select:focus { border-color: var(--text); }
   textarea { height: 78px; resize: vertical; }
   select option { background: var(--bg); color: var(--text); }
@@ -66,7 +69,6 @@
   .toast.show{opacity:1;}.toast.error{background:#A32D2D;color:#fff;}
   .sync-dot{width:7px;height:7px;border-radius:50%;background:#639922;display:inline-block;margin-right:5px;}
   .sync-dot.off{background:#ccc;}
-  /* Login */
   .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
   .login-card{width:100%;max-width:340px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;}
   .login-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;margin-bottom:8px;}
@@ -75,7 +77,6 @@
   .login-error{font-size:12px;color:#A32D2D;margin-top:8px;display:none;}
   .pw-wrap{position:relative;}
   .pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-ter);font-size:16px;padding:0;}
-  /* Cliente */
   .client-wrap{padding:2rem 20px;display:flex;flex-direction:column;align-items:center;}
   .search-box{width:100%;max-width:420px;position:relative;margin-bottom:1.5rem;}
   .search-box input{padding-left:38px;}
@@ -143,6 +144,8 @@
         <button class="tab active" onclick="showTab('new')">Nuevo ticket</button>
         <button class="tab" onclick="showTab('list')">Mis tickets (<span id="count">…</span>)</button>
       </div>
+
+      <!-- Formulario nuevo -->
       <div id="tab-new">
         <div class="row2">
           <div class="field-group"><div class="field-label">N° ticket Jira</div><input type="text" id="f-id" placeholder="CSUW-1234"></div>
@@ -171,6 +174,8 @@
         <div class="field-group"><div class="field-label">Comentario para el cliente (opcional)</div><textarea id="f-comment" placeholder="Mensaje que verá el cliente al consultar su ticket..."></textarea></div>
         <div class="btn-row"><button class="btn-primary" id="btn-save" onclick="saveTicket()"><i class="ti ti-plus"></i> Guardar ticket</button></div>
       </div>
+
+      <!-- Lista -->
       <div id="tab-list" style="display:none">
         <div id="ticket-list" class="ticket-list"><div class="empty-state"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i>Cargando...</div></div>
         <div id="edit-panel" class="edit-panel" style="display:none">
@@ -223,24 +228,10 @@
 </div>
 
 <script>
-// ── Config ───────────────────────────────────────────────────
 const SB_URL  = 'https://lursuyqtduqlvqixpaot.supabase.co';
 const SB_KEY  = 'sb_publishable_6B1tMia6i68C7gcX76ogww_mJySkwwN';
 const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 const CS_PASS = 'Uwigo2026@';
-
-// ── Mapeo de columnas (nombres reales en Supabase) ───────────
-// id, cliente, Descripción, Módulo, Estado, Comentario, created_at, Fecha Estimada
-const COL = {
-  id:          'id',
-  client:      'cliente',
-  description: 'Descripción',
-  module:      'Módulo',
-  status:      'Estado',
-  comment:     'Comentario',
-  email:       'email',
-  created_at:  'created_at'
-};
 
 async function sbFetch(path, opts={}) {
   const res = await fetch(SB_URL+path, {headers:HEADERS,...opts});
@@ -248,7 +239,7 @@ async function sbFetch(path, opts={}) {
   return res.status===204 ? null : res.json();
 }
 
-const getAll   = ()       => sbFetch(`/rest/v1/tickets?order=created_at.desc&select=*`);
+const getAll    = ()      => sbFetch('/rest/v1/tickets?order=created_at.desc&select=*');
 const insertOne = t       => sbFetch('/rest/v1/tickets',{method:'POST',body:JSON.stringify(t),headers:{...HEADERS,'Prefer':'return=representation'}});
 const updateOne = (id,t)  => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',body:JSON.stringify(t),headers:{...HEADERS,'Prefer':'return=representation'}});
 const deleteOne = id      => sbFetch(`/rest/v1/tickets?id=eq.${encodeURIComponent(id)}`,{method:'DELETE'});
@@ -262,7 +253,6 @@ function toast(msg,err=false){
   clearTimeout(el._t); el._t=setTimeout(()=>el.className='toast',2800);
 }
 
-// ── Auth ─────────────────────────────────────────────────────
 function doLogin(){
   const val=document.getElementById('pw-input').value;
   if(val===CS_PASS){sessionStorage.setItem('cs_auth','1');document.getElementById('login-error').style.display='none';document.getElementById('pw-input').value='';switchTo('cs');}
@@ -271,7 +261,6 @@ function doLogin(){
 function doLogout(){sessionStorage.removeItem('cs_auth');switchTo('login');}
 function togglePw(){const i=document.getElementById('pw-input'),e=document.getElementById('pw-eye');if(i.type==='password'){i.type='text';e.className='ti ti-eye-off';}else{i.type='password';e.className='ti ti-eye';}}
 
-// ── Nav ──────────────────────────────────────────────────────
 function switchTo(v){
   ['login','cs','client'].forEach(x=>document.getElementById('view-'+x).classList.toggle('active',x===v));
   if(v==='cs'){loadTickets();startPolling();stopClientPolling();}
@@ -285,7 +274,6 @@ function showTab(t){
   if(t==='list')loadTickets();
 }
 
-// ── Helpers ──────────────────────────────────────────────────
 function statusClass(s){return{'Entregado a QA':'active-qa','En curso':'active-curso','Por terminar':'active-terminar','Terminado':'active-terminado'}[s]||'';}
 function badgeHTML(s){return`<span class="badge ${{ 'Entregado a QA':'badge-qa','En curso':'badge-curso','Por terminar':'badge-terminar','Terminado':'badge-terminado'}[s]||'badge-default'}">${s}</span>`;}
 function selectStatus(btn,container){
@@ -294,7 +282,6 @@ function selectStatus(btn,container){
   if(container==='new-status-btns')selectedStatusNew=btn.dataset.s;
 }
 
-// ── Tickets ──────────────────────────────────────────────────
 async function loadTickets(){
   try{
     tickets=await getAll();
@@ -308,32 +295,29 @@ function renderList(){
   const el=document.getElementById('ticket-list');
   if(!tickets.length){el.innerHTML='<div class="empty-state"><i class="ti ti-inbox"></i>Aún no hay tickets registrados</div>';document.getElementById('edit-panel').style.display='none';return;}
   el.innerHTML=tickets.map(t=>`
-    <div class="ticket-card ${editingId===t[COL.id]?'selected':''}" onclick="editTicket('${t[COL.id]}')">
-      <div class="tc-head"><span class="tc-id"><i class="ti ti-ticket" style="font-size:13px"></i>${t[COL.id]}</span>${badgeHTML(t[COL.status])}</div>
-      <div class="tc-client">${t[COL.client]}${t[COL.module]?' · '+t[COL.module]:''}</div>
-      ${t[COL.description]?`<div class="tc-desc">${t[COL.description].length>130?t[COL.description].slice(0,130)+'…':t[COL.description]}</div>`:''}
+    <div class="ticket-card ${editingId===t.id?'selected':''}" onclick="editTicket('${t.id}')">
+      <div class="tc-head"><span class="tc-id"><i class="ti ti-ticket" style="font-size:13px"></i>${t.id}</span>${badgeHTML(t.status)}</div>
+      <div class="tc-client">${t.client}${t.module?' · '+t.module:''}</div>
+      ${t.description?`<div class="tc-desc">${t.description.length>130?t.description.slice(0,130)+'…':t.description}</div>`:''}
     </div>`).join('');
 }
 
 async function saveTicket(){
   const id=document.getElementById('f-id').value.trim();
   const client=document.getElementById('f-client').value.trim();
-  const email=document.getElementById('f-email').value.trim();
   if(!id||!client){toast('Ingresa al menos el N° de ticket y el cliente.',true);return;}
   const btn=document.getElementById('btn-save');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando…';
   try{
-    const row={
-      [COL.id]: id,
-      [COL.client]: client,
-      [COL.description]: document.getElementById('f-desc').value.trim()||null,
-      [COL.module]: document.getElementById('f-module').value||null,
-      [COL.status]: selectedStatusNew,
-      [COL.comment]: document.getElementById('f-comment').value.trim()||null,
-    };
-    // Agregar email solo si la columna existe
-    if(email) row['email']=email;
-    await insertOne(row);
+    await insertOne({
+      id,
+      client,
+      email: document.getElementById('f-email').value.trim()||null,
+      description: document.getElementById('f-desc').value.trim()||null,
+      module: document.getElementById('f-module').value||null,
+      status: selectedStatusNew,
+      comment: document.getElementById('f-comment').value.trim()||null
+    });
     ['f-id','f-client','f-email','f-desc','f-date','f-comment'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('f-module').value='';
     toast('✓ Ticket guardado');
@@ -345,22 +329,22 @@ async function saveTicket(){
 }
 
 function editTicket(id){
-  editingId=id;const t=tickets.find(x=>x[COL.id]===id);if(!t)return;
-  document.getElementById('ep-id').textContent=t[COL.id]+' — '+t[COL.client];
-  document.getElementById('ep-comment').value=t[COL.comment]||'';
-  document.querySelectorAll('#ep-status-btns .status-btn').forEach(b=>{b.className='status-btn';if(b.dataset.s===t[COL.status])b.classList.add(statusClass(t[COL.status]));});
+  editingId=id;const t=tickets.find(x=>x.id===id);if(!t)return;
+  document.getElementById('ep-id').textContent=t.id+' — '+t.client;
+  document.getElementById('ep-comment').value=t.comment||'';
+  document.querySelectorAll('#ep-status-btns .status-btn').forEach(b=>{b.className='status-btn';if(b.dataset.s===t.status)b.classList.add(statusClass(t.status));});
   document.getElementById('edit-panel').style.display='block';
   renderList();
   document.getElementById('edit-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 async function applyEdit(){
-  const t=tickets.find(x=>x[COL.id]===editingId);if(!t)return;
+  const t=tickets.find(x=>x.id===editingId);if(!t)return;
   const activeBtn=document.querySelector('#ep-status-btns .status-btn[class*="active-"]');
   const btn=document.getElementById('btn-update');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando…';
   try{
-    await updateOne(editingId,{[COL.status]:activeBtn?activeBtn.dataset.s:t[COL.status],[COL.comment]:document.getElementById('ep-comment').value.trim()||null});
+    await updateOne(editingId,{status:activeBtn?activeBtn.dataset.s:t.status,comment:document.getElementById('ep-comment').value.trim()||null});
     toast('✓ Cambios guardados');await loadTickets();editTicket(editingId);
   }catch(e){toast('Error: '+e.message,true);}
   finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i> Guardar cambios';}
@@ -374,13 +358,11 @@ async function deleteTicket(){
 
 function copyTicketId(){if(!editingId)return;navigator.clipboard.writeText(editingId).then(()=>toast('✓ N° copiado: '+editingId));}
 
-// ── Polling ──────────────────────────────────────────────────
-function startPolling(){stopPolling();polling=setInterval(async()=>{const prev=JSON.stringify(tickets.map(t=>t[COL.status]+t[COL.comment]));await loadTickets();const next=JSON.stringify(tickets.map(t=>t[COL.status]+t[COL.comment]));if(prev!==next&&editingId)editTicket(editingId);},8000);}
+function startPolling(){stopPolling();polling=setInterval(async()=>{const prev=JSON.stringify(tickets.map(t=>t.status+t.comment));await loadTickets();const next=JSON.stringify(tickets.map(t=>t.status+t.comment));if(prev!==next&&editingId)editTicket(editingId);},8000);}
 function stopPolling(){if(polling){clearInterval(polling);polling=null;}}
 function startClientPolling(){stopClientPolling();clientPolling=setInterval(()=>{const v=document.getElementById('search-input').value.trim();if(v)searchTicket(v);},8000);}
 function stopClientPolling(){if(clientPolling){clearInterval(clientPolling);clientPolling=null;}}
 
-// ── Vista cliente ────────────────────────────────────────────
 const steps=['En curso','Entregado a QA','Por terminar','Terminado'];
 function timelineHTML(current){
   const ci=steps.indexOf(current);
@@ -401,13 +383,13 @@ async function searchTicket(val){
     const card=document.getElementById('status-card'),nf=document.getElementById('not-found');
     if(t){
       card.style.display='block';nf.style.display='none';
-      document.getElementById('sc-id').textContent=t[COL.id]+(t[COL.module]?' · '+t[COL.module]:'');
-      document.getElementById('sc-title').textContent=t[COL.client];
+      document.getElementById('sc-id').textContent=t.id+(t.module?' · '+t.module:'');
+      document.getElementById('sc-title').textContent=t.client;
       document.getElementById('sc-date').textContent='';
-      document.getElementById('sc-badge').innerHTML=badgeHTML(t[COL.status]);
-      document.getElementById('sc-timeline').innerHTML=timelineHTML(t[COL.status]);
+      document.getElementById('sc-badge').innerHTML=badgeHTML(t.status);
+      document.getElementById('sc-timeline').innerHTML=timelineHTML(t.status);
       const cw=document.getElementById('sc-comment-wrap');
-      if(t[COL.comment]){cw.style.display='block';document.getElementById('sc-comment').textContent=t[COL.comment];}
+      if(t.comment){cw.style.display='block';document.getElementById('sc-comment').textContent=t.comment;}
       else cw.style.display='none';
     }else{card.style.display='none';nf.style.display='block';}
   }catch(e){toast('Error buscando ticket',true);}
@@ -415,7 +397,6 @@ async function searchTicket(val){
 
 function resetClientView(){document.getElementById('status-card').style.display='none';document.getElementById('not-found').style.display='none';}
 
-// ── Init ─────────────────────────────────────────────────────
 if(sessionStorage.getItem('cs_auth')==='1'){switchTo('cs');}else{switchTo('client');}
 </script>
 </body>
